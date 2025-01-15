@@ -2,7 +2,7 @@ import { Suspense, render } from "x-jsx";
 import { createSignal, createAsync, createEffect } from "@solidjs/signals";
 
 function App() {
-  const [count, setCount] = createSignal(0);
+  const [count, setCount] = createSignal(() => 0);
   const phrase = createAsync(() => getPhrase(count()));
   const hello = createAsync(() => getHello());
 
@@ -47,19 +47,19 @@ const phrases = [
 async function getPhrase(num) {
   // generate a funny phrase for each number from 0 to 9
   console.log("Fetching phrase for", num);
-  await new Promise((r) => setTimeout(r, 50));
+  await new Promise((r) => setTimeout(r, 1000));
   return phrases[num];
 }
 
 async function getHello() {
   console.log("Fetching helloo...");
-  await new Promise((r) => setTimeout(r, 50));
+  await new Promise((r) => setTimeout(r, 1000));
   return "Hello world!";
 }
 
 render(
   () => (
-    // <Suspense>
+    // <Suspense fallback="Loading App">
     <App />
     // </Suspense>
   ),

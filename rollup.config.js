@@ -19,6 +19,11 @@ export default {
           find: "x-jsx",
           replacement: "/Users/cs215594/solid-suspense-demo-v2/lib/x-jsx/dist",
         },
+        {
+          find: "@solidjs/signals",
+          replacement:
+            "/Users/cs215594/solid-suspense-demo-v2/lib/signals/dist/dev.js",
+        },
       ],
     }),
 
