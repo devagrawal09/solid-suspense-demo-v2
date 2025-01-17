@@ -8,10 +8,10 @@ function App() {
 
   console.log(`Rendering App`);
 
-  createEffect(phrase, (p) => console.log({ p }));
+  createEffect(phrase, (phrase) => console.log({ phrase }));
 
   return (
-    <main>
+    <>
       <h1>{hello()}</h1>
       <button
         class="increment"
@@ -20,10 +20,10 @@ function App() {
       >
         Clicks: {count()}
       </button>
-      <Suspense fallback={"Loading phrase..."}>
+      <Suspense fallback={<p>Loading phrase...</p>}>
         <Message text={phrase()} />
       </Suspense>
-    </main>
+    </>
   );
 }
 
@@ -53,15 +53,17 @@ async function getPhrase(num) {
 
 async function getHello() {
   console.log("Fetching helloo...");
-  await new Promise((r) => setTimeout(r, 1000));
+  await new Promise((r) => setTimeout(r, 500));
   return "Hello world!";
 }
 
 render(
   () => (
-    // <Suspense fallback="Loading App">
-    <App />
-    // </Suspense>
+    <main>
+      <Suspense fallback={<p>Loading App</p>}>
+        <App />
+      </Suspense>
+    </main>
   ),
   document.getElementById("root")
 );

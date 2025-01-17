@@ -2,12 +2,15 @@ import resolve from "@rollup/plugin-node-resolve";
 import { babel } from "@rollup/plugin-babel";
 import terser from "@rollup/plugin-terser";
 import alias from "@rollup/plugin-alias";
+import path from "path";
 
 const TERSER_OPTIONS = {
   module: true,
   compress: { passes: 3 },
   mangle: true,
 };
+
+const projectRootDir = path.resolve(import.meta.dirname);
 
 export default {
   input: "src/main.jsx",
@@ -17,12 +20,14 @@ export default {
       entries: [
         {
           find: "x-jsx",
-          replacement: "/Users/cs215594/solid-suspense-demo-v2/lib/x-jsx/dist",
+          replacement: path.resolve(projectRootDir, "./lib/x-jsx/dist"),
         },
         {
           find: "@solidjs/signals",
-          replacement:
-            "/Users/cs215594/solid-suspense-demo-v2/lib/signals/dist/dev.js",
+          replacement: path.resolve(
+            projectRootDir,
+            "./lib/signals/dist/dev.js"
+          ),
         },
       ],
     }),
