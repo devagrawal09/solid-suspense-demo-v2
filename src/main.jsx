@@ -1,17 +1,17 @@
 import { Suspense, render } from "x-jsx";
 import { createSignal, createAsync, createEffect } from "@solidjs/signals";
 
-function App() {
+function PhraseCounter() {
+  console.log(`Rendering PhraseCounter`);
+
   const [count, setCount] = createSignal(() => 0);
   const phrase = createAsync(() => getPhrase(count()));
   const hello = createAsync(() => getHello());
 
-  console.log(`Rendering App`);
-
   createEffect(phrase, (phrase) => console.log({ phrase }));
 
   return (
-    <>
+    <Suspense fallback={<p>Loading phrase counter...</p>}>
       <h1>{hello()}</h1>
       <button
         class="increment"
@@ -23,7 +23,7 @@ function App() {
       <Suspense fallback={<p>Loading phrase...</p>}>
         <Message text={phrase()} />
       </Suspense>
-    </>
+    </Suspense>
   );
 }
 
@@ -60,9 +60,7 @@ async function getHello() {
 render(
   () => (
     <main>
-      <Suspense fallback={<p>Loading App</p>}>
-        <App />
-      </Suspense>
+      <PhraseCounter />
     </main>
   ),
   document.getElementById("root")
