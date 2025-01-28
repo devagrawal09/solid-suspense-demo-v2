@@ -2,7 +2,7 @@ import resolve from "@rollup/plugin-node-resolve";
 import { babel } from "@rollup/plugin-babel";
 import terser from "@rollup/plugin-terser";
 import alias from "@rollup/plugin-alias";
-import path from "path";
+// import path from "path";
 
 const TERSER_OPTIONS = {
   module: true,
@@ -10,7 +10,7 @@ const TERSER_OPTIONS = {
   mangle: true,
 };
 
-const projectRootDir = path.resolve(import.meta.dirname);
+// const projectRootDir = path.resolve(import.meta.dirname);
 
 export default {
   input: "src/main.jsx",
@@ -20,14 +20,13 @@ export default {
       entries: [
         {
           find: "x-jsx",
-          replacement: path.resolve(projectRootDir, "./lib/x-jsx/dist"),
+          replacement:
+            "/home/lucifer/work/conf-demos/async-state/solid-suspense-demo-v2/lib/x-jsx/dist",
         },
         {
           find: "@solidjs/signals",
-          replacement: path.resolve(
-            projectRootDir,
-            "./lib/signals/dist/dev.js"
-          ),
+          replacement:
+            "/home/lucifer/work/conf-demos/async-state/solid-suspense-demo-v2/lib/signals/dist/dev.js",
         },
       ],
     }),

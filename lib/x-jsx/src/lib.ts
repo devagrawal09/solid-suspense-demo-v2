@@ -1,12 +1,12 @@
 import {
   createMemo,
   untrack,
-  createSignal,
-  catchError,
+  createErrorBoundary,
   mapArray,
   onCleanup,
   SignalOptions,
-  createSuspense
+  createSuspense,
+  createAsync
 } from "@solidjs/signals";
 import type { Accessor, Setter } from "@solidjs/signals";
 import type { JSX } from "./jsx";
@@ -236,7 +236,7 @@ export function Match<T>(props: MatchProps<T>) {
   return props as unknown as JSX.Element;
 }
 
-let Errors: Set<Setter<any>>;
+let Errors: Set<() => void>;
 export function resetErrorBoundaries() {
   Errors && [...Errors].forEach(fn => fn());
 }
@@ -259,19 +259,16 @@ export function ErrorBoundary(props: {
   fallback: JSX.Element | ((err: any, reset: () => void) => JSX.Element);
   children: JSX.Element;
 }): JSX.Element {
-  let err;
-  const [errored, setErrored] = createSignal<any>(err);
   Errors || (Errors = new Set());
-  Errors.add(setErrored);
-  onCleanup(() => Errors.delete(setErrored));
-  return createMemo(() => {
-    let e: any;
-    if ((e = errored())) {
+  return createErrorBoundary(
+    () => props.children,
+    (err, reset) => {
+      Errors.add(reset);
+      onCleanup(() => Errors.delete(reset));
       const f = props.fallback;
-      return typeof f === "function" && f.length ? untrack(() => f(e, () => setErrored())) : f;
+      return typeof f === "function" && f.length ? f(err, reset) : f;
     }
-    return catchError(() => props.children, setErrored);
-  }) as unknown as JSX.Element;
+  ) as unknown as JSX.Element;
 }
 
 /**
@@ -303,4 +300,25 @@ function resolveChildren(children: JSX.Element | Accessor<any>): ResolvedChildre
     return results;
   }
   return children as ResolvedChildren;
+}
+
+export function lazy<T extends Component<any>>(
+  fn: () => Promise<{ default: T }>
+): T & { preload: () => Promise<{ default: T }> } {
+  let comp: () => T | undefined;
+  let p: Promise<{ default: T }> | undefined;
+  const wrap: T & { preload?: () => void } = ((props: any) => {
+    if (!comp) {
+      const s = createAsync<T>(() => (p || (p = fn())).then(mod => mod.default));
+      comp = s;
+    }
+    let Comp: T | undefined;
+    return createMemo(() =>
+      (Comp = comp())
+        ? untrack(() => Comp!(props))
+        : ""
+    ) as unknown as JSX.Element;
+  }) as T;
+  wrap.preload = () => p || ((p = fn()).then(mod => (comp = () => mod.default)), p);
+  return wrap as T & { preload: () => Promise<{ default: T }> };
 }

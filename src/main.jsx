@@ -5,8 +5,8 @@ function PhraseCounter() {
   console.log(`Rendering PhraseCounter`);
 
   const [count, setCount] = createSignal(() => 0);
-  const phrase = createAsync(() => getPhrase(count()));
   const hello = createAsync(() => getHello());
+  const phrase = createAsync(() => getPhrase(count()));
 
   createEffect(phrase, (phrase) => console.log({ phrase }));
 
@@ -21,7 +21,7 @@ function PhraseCounter() {
         Clicks: {count()}
       </button>
       <Suspense fallback={<p>Loading phrase...</p>}>
-        <Message text={phrase()} />
+        <Message text={phrase().toUpperCase()} />
       </Suspense>
     </Suspense>
   );

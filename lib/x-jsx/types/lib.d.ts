@@ -175,3 +175,10 @@ export declare function Suspense(props: {
     fallback?: JSX.Element;
     children: JSX.Element;
 }): JSX.Element;
+export declare function lazy<T extends Component<any>>(fn: () => Promise<{
+    default: T;
+}>): T & {
+    preload: () => Promise<{
+        default: T;
+    }>;
+};
