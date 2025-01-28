@@ -1,4 +1,4 @@
-import { Suspense, render } from "x-jsx";
+import { Suspense, render, ErrorBoundary } from "x-jsx";
 import { createSignal, createAsync, createEffect } from "@solidjs/signals";
 
 function PhraseCounter() {
@@ -47,21 +47,43 @@ const phrases = [
 async function getPhrase(num) {
   // generate a funny phrase for each number from 0 to 9
   console.log("Fetching phrase for", num);
-  await new Promise((r) => setTimeout(r, 1000));
+  await new Promise((r) => setTimeout(r, 200));
+  if (Math.random() < 0.5) {
+    console.log(`getPhrase throwing`);
+    throw new Error(`Random async error`);
+  }
   return phrases[num];
 }
 
 async function getHello() {
   console.log("Fetching helloo...");
   await new Promise((r) => setTimeout(r, 500));
+  if (Math.random() < 0.5) {
+    console.log(`getHello throwing`);
+    throw new Error(`Random async error`);
+  }
   return "Hello world!";
 }
 
 render(
   () => (
-    <main>
-      <PhraseCounter />
-    </main>
+    <ErrorBoundary
+      fallback={(err, reset) => {
+        console.log(reset);
+        return (
+          <>
+            <p>
+              Something went wrong! <button onClick={reset}>Try Again</button>
+            </p>
+            <p>Error message: {err.message}</p>
+          </>
+        );
+      }}
+    >
+      <main>
+        <PhraseCounter />
+      </main>
+    </ErrorBoundary>
   ),
   document.getElementById("root")
 );
