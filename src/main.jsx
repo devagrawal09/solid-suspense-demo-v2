@@ -1,14 +1,25 @@
 import { Suspense, render, ErrorBoundary } from "x-jsx";
-import { createSignal, createAsync, createEffect } from "@solidjs/signals";
+import {
+  createSignal,
+  createAsync,
+  createEffect,
+  createMemo,
+  isPending,
+} from "@solidjs/signals";
 
 function PhraseCounter() {
   console.log(`Rendering PhraseCounter`);
 
-  const [count, setCount] = createSignal(() => 0);
+  const [count, setCount] = createSignal(0);
   const hello = createAsync(() => getHello());
   const phrase = createAsync(() => getPhrase(count()));
+  const upperPhrase = createMemo(() => phrase().toUpperCase());
 
-  createEffect(phrase, (phrase) => console.log({ phrase }));
+  createEffect(
+    phrase,
+    (phrase) => console.log({ phrase }),
+    (err) => console.log("Oh no!", err)
+  );
 
   return (
     <Suspense fallback={<p>Loading phrase counter...</p>}>
@@ -17,19 +28,35 @@ function PhraseCounter() {
         class="increment"
         onClick={() => setCount(count() + 1)}
         type="button"
+        style={{ opacity: isPending(upperPhrase) ? 0.5 : 1 }}
       >
         Clicks: {count()}
       </button>
-      <Suspense fallback={<p>Loading phrase...</p>}>
-        <Message text={phrase().toUpperCase()} />
-      </Suspense>
+      <ErrorBoundary
+        fallback={(err, reset) => {
+          return (
+            <>
+              <p>Error message: {err.message}</p>
+              <button onClick={reset}>Retry</button>
+            </>
+          );
+        }}
+      >
+        <Suspense fallback={<p>Loading phrase...</p>}>
+          <Message text={upperPhrase()} isStale={isPending(upperPhrase)} />
+        </Suspense>
+      </ErrorBoundary>
     </Suspense>
   );
 }
 
 function Message(props) {
   console.log(`Rendering <Message>`);
-  return <p>The message is: {props.text}</p>;
+  return (
+    <p style={{ opacity: props.isStale ? 0.5 : 1 }}>
+      The message is: {props.text}
+    </p>
+  );
 }
 
 const phrases = [
@@ -47,8 +74,8 @@ const phrases = [
 async function getPhrase(num) {
   // generate a funny phrase for each number from 0 to 9
   console.log("Fetching phrase for", num);
-  await new Promise((r) => setTimeout(r, 200));
-  if (Math.random() < 0.5) {
+  await new Promise((r) => setTimeout(r, 800));
+  if (Math.random() < 0) {
     console.log(`getPhrase throwing`);
     throw new Error(`Random async error`);
   }
@@ -58,10 +85,10 @@ async function getPhrase(num) {
 async function getHello() {
   console.log("Fetching helloo...");
   await new Promise((r) => setTimeout(r, 500));
-  if (Math.random() < 0.5) {
-    console.log(`getHello throwing`);
-    throw new Error(`Random async error`);
-  }
+  // if (Math.random() < 0.5) {
+  //   console.log(`getHello throwing`);
+  //   throw new Error(`Random async error`);
+  // }
   return "Hello world!";
 }
 
@@ -69,7 +96,7 @@ render(
   () => (
     <ErrorBoundary
       fallback={(err, reset) => {
-        console.log(reset);
+        console.error(err);
         return (
           <>
             <p>

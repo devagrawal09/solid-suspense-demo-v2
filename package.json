@@ -13,8 +13,10 @@
     "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-node-resolve": "^15.3.0",
     "@rollup/plugin-terser": "^0.4.4",
-    "babel-preset-solid": "^1.9.3",
-    "rollup": "^4.24.3"
+    "babel-plugin-jsx-dom-expressions": "^0.39.6",
+    "rollup": "^4.24.3",
+    "babel-preset-solid": "^1.9.5",
+    "rollup-plugin-serve": "^3.0.0"
   },
   "keywords": [],
   "author": "",
